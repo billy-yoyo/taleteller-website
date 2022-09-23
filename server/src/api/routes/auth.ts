@@ -47,7 +47,7 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
                 const user = new User({
                     username: signup.username,
                     name: signup.name,
-                    admin: true,
+                    admin: false,
                     passhash
                 });
 
