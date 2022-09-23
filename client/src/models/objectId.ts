@@ -1,0 +1,2 @@
+
+export type ObjectID = string;
