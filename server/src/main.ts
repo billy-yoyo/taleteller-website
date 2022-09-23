@@ -22,10 +22,15 @@ import { channelRouter } from "./api/routes/channel";
 import { messageRouter } from "./api/routes/message";
 import * as useWebsocket from "express-ws";
 import { waitForSocketRegistration } from "./event/targets";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 useWebsocket(app);
-const port = 8080; // default port to listen
+
+const port = process.env.PORT; // default port to listen
+const host = process.env.HOST;
 
 const PUBLIC_URI = "../client/public";
 
@@ -77,7 +82,7 @@ const startServer = async () => {
         app.use("/*", (req, res) => { console.log(req.path); res.sendFile(path.resolve(`${PUBLIC_URI}/index.html`)) });
 
         app.listen(port, () => {
-            console.log(`server started at http://localhost:${port}`);
+            console.log(`server started at http://${host}:${port}`);
         });
 
     } catch(e) {
