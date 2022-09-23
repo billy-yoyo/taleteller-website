@@ -67,8 +67,6 @@ export const userHasReadAccessToAll = async (user: DBUser, scopes: DBScope[]): P
 };
 
 export const userHasWriteAccess = async (user: DBUser, scope: DBScope | undefined): Promise<boolean> => {
-    return true;
-    /*
     if (!scope) {
         return false;
     } else if (scope.type === 'global') {
@@ -129,5 +127,5 @@ export const userHasWriteAccess = async (user: DBUser, scope: DBScope | undefine
         }
     } else {
         return false;
-    }*/
+    }
 };
