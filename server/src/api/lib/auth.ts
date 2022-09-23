@@ -1,4 +1,4 @@
-import * as fs from "fs/promises";
+import { promises as fs } from "fs";
 import * as dotenv from "dotenv";
 import { DBUser, User } from "../../db/models/user";
 import * as jwt from "jsonwebtoken";
