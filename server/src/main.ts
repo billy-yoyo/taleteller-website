@@ -24,12 +24,10 @@ import * as useWebsocket from "express-ws";
 import { waitForSocketRegistration } from "./event/targets";
 import * as dotenv from "dotenv";
 import * as https from "https";
+import * as http from "http";
 import * as fs from "fs";
 
 dotenv.config();
-
-const app = express();
-useWebsocket(app);
 
 const port = process.env.PORT; // default port to listen
 const host = process.env.HOST;
@@ -42,9 +40,13 @@ const createServer = () => {
         const certificate = fs.readFileSync(process.env.SSL_CERTIFICATE as string);
         return https.createServer({ key: privateKey, cert: certificate }, app);
     } else {
-        return app;
+        return http.createServer(app);
     }
 };
+
+const app = express();
+const server = createServer();
+useWebsocket(app, server);
 
 const PUBLIC_URI = "../client/public";
 
@@ -95,10 +97,9 @@ const startServer = async () => {
         app.use("/", express.static(PUBLIC_URI));
         app.use("/*", (req, res) => { console.log(req.path); res.sendFile(path.resolve(`${PUBLIC_URI}/index.html`)) });
 
-        createServer().listen(port, () => {
+        server.listen(port, () => {
             console.log(`server started at http${ssl ? 's' : ''}://${host}:${port}`);
         });
-
     } catch(e) {
         console.error(`Failed to start the server`, e);
         process.exit();
