@@ -1,21 +1,28 @@
 import requests
 
-ROOT = "http://localhost:8080"
+ROOT = "http://51.158.96.254:8080"
 
 action_id = "62bb4dd15d4c5d37e412ef23"
 class_id = "62c9c2804a9d87a68075edbc"
 
 def signup():
     return requests.post(f"{ROOT}/auth/signup", json={
-        "username": "admin",
-        "password": "admin",
-        "name": "Admin"
+        "username": "cory",
+        "password": "1923baksdja8sdu",
+        "name": "Cory"
+    })
+
+def create_admin(token):
+    return requests.put(f"{ROOT}/api/user/632e44322fa441c1f566b8e8", json={
+        "admin": True
+    }, headers={
+        "Authorization": f"Bearer {token}"
     })
 
 def login():
     resp = requests.post(f"{ROOT}/auth/login", json={
         "username": "admin",
-        "password": "admin"
+        "password": "m12o3ihasdbasdkj"
     })
     print(resp.text)
     data = resp.json()
@@ -56,7 +63,7 @@ def delete(id, token):
         "Authorization": f"Bearer {token}"
     })
 
-token = login()
-#print(get("62c6144dba20a07ae86e641b", token).text)
-#print(get("62c9c2804a9d87a68075edbc", token).text)
-print(delete("632a47465ac2cbbe19291e2c", token).text)
+resp = signup()
+#token = login()
+#resp = create_admin(token)
+print(resp.text)

@@ -23,6 +23,8 @@ import { messageRouter } from "./api/routes/message";
 import * as useWebsocket from "express-ws";
 import { waitForSocketRegistration } from "./event/targets";
 import * as dotenv from "dotenv";
+import * as https from "https";
+import * as fs from "fs";
 
 dotenv.config();
 
@@ -31,6 +33,18 @@ useWebsocket(app);
 
 const port = process.env.PORT; // default port to listen
 const host = process.env.HOST;
+
+const ssl = process.env.SSL === 'true';
+
+const createServer = () => {
+    if (ssl) {
+        const privateKey = fs.readFileSync(process.env.SSL_PRIVATE_KEY as string);
+        const certificate = fs.readFileSync(process.env.SSL_CERTIFICATE as string);
+        return https.createServer({ key: privateKey, cert: certificate }, app);
+    } else {
+        return app;
+    }
+};
 
 const PUBLIC_URI = "../client/public";
 
@@ -81,8 +95,8 @@ const startServer = async () => {
         app.use("/", express.static(PUBLIC_URI));
         app.use("/*", (req, res) => { console.log(req.path); res.sendFile(path.resolve(`${PUBLIC_URI}/index.html`)) });
 
-        app.listen(port, () => {
-            console.log(`server started at http://${host}:${port}`);
+        createServer().listen(port, () => {
+            console.log(`server started at http${ssl ? 's' : ''}://${host}:${port}`);
         });
 
     } catch(e) {
