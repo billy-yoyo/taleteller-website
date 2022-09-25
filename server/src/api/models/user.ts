@@ -34,6 +34,7 @@ export const UserMap: Template<DBUser, IUser> = {
 
 export const mapUserUpdate = (user: DeepPartial<IUser> | undefined): DeepPartial<DBUser> | undefined => {
     return user === undefined ? undefined : {
-        name: user.name
+        name: user.name,
+        admin: user.admin
     };
 };

@@ -4,6 +4,7 @@ import { TLogin, TSignup } from "../models/auth";
 import * as bcrypt from "bcrypt";
 import { createToken } from "../lib/auth";
 import { TUser, UserMap } from "../models/user";
+import { Channel } from "../../db/models/channel";
 
 export const authRouter = express.Router();
 authRouter.use(express.json());
@@ -52,6 +53,13 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
                 });
 
                 const saved = await user.save();
+
+                const channel = new Channel({
+                    name: 'Private Channel',
+                    userId: saved._id
+                });
+
+                await channel.save();
 
                 res.status(200).json({ user: TUser.toTransit(UserMap.toTransit(saved)) });
             }

@@ -5,6 +5,8 @@ import { TObjectId } from "../../models/helpers/objectId";
 import { isPlainObject } from "../../../util/funcHelper";
 import { DBScope } from "../../../db/models/scope";
 import { userHasWriteAccess } from "../../lib/permissions";
+import { IUser } from "../../models/user";
+import { DBUser } from "../../../db/models/user";
 
 const deepApplyObject = (model: any, update: any) => {
     Object.entries(update).map(([k, v]) => {
@@ -20,7 +22,8 @@ export const modelUpdater = <T, M>(
     TPartialModel: Template<DeepPartial<T>, any>,
     DBModel: Model<M & Document>,
     mapUpdate: (data: DeepPartial<T> | undefined) => DeepPartial<M> | undefined,
-    callback?: (model: M & Document) => void
+    callback?: (model: M & Document) => void,
+    updatePermissionCheck?: (user: DBUser, update: DeepPartial<M>) => boolean
 ) => {
     return async (req: express.Request, res: express.Response, getScope: (m: M & Document) => DBScope) => {
         try { 
@@ -35,14 +38,18 @@ export const modelUpdater = <T, M>(
                         if (hasAccess) {
                             const data = TPartialModel.toModel(req.body);
                             const update = mapUpdate(data);
-                            
-                            const updatedModel = await DBModel.findByIdAndUpdate(id, update);
 
-                            if (callback && updatedModel) {
-                                callback(updatedModel);
+                            if (update && (!updatePermissionCheck || updatePermissionCheck(req.auth.user, update))) {
+                                const updatedModel = await DBModel.findByIdAndUpdate(id, update);
+
+                                if (callback && updatedModel) {
+                                    callback(updatedModel);
+                                }
+
+                                res.status(200).send('Updated');
+                            } else {
+                                res.status(404).send(`Failed to find model with id ${id.toHexString()}`);
                             }
-
-                            res.status(200).send('Updated');
                         } else {
                             res.status(404).send(`Failed to find model with id ${id.toHexString()}`);
                         }
